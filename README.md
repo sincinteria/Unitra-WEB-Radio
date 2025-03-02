@@ -1,14 +1,14 @@
 # SinC Web Radio Player
 
-Demo Link: [https://sincinteria.github.io/SinC-AI-WEB-Radio-Player/](https://sincinteria.github.io/SinC-AI-WEB-Radio-Player/)
+Demo Link: [https://sincinteria.github.io/SinC-AI-WEB-Radio-Player/](https://sincinteria.github.io/Unitra-WEB-Radio/)
 
 A simple and elegant web-based radio player with a retro tuner interface. This application allows users to listen to various Polish radio stations through an intuitive tuning dial interface.
 
-![Radio Player Interface](tuner.png)
+![Radio Player Interface](tuneron.png)
 
 ## Features
 
-- Retro-style tuner interface with rotating dial
+- Unitra-style tuner interface with rotating dial
 - 20 pre-configured Polish radio stations
 - Support for both MP3 and HLS streaming formats
 - Real-time station switching with visual feedback
@@ -30,14 +30,13 @@ The player is built using pure HTML, CSS, and JavaScript, with the following fea
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/SinC-AI-WEB-Radio-Player.git
+git clone https://github.com/yourusername/Unitra-WEB-Radio.git)
 ```
 
 2. Ensure you have the required assets in your project directory:
-   - `tuner.png` (background image)
+   - `tuneron.png` (background image)
+   - `tuneroff.png` (background image)
    - `pokretlo.png` (dial image)
-   - `play.png` (play button)
-   - `stop.png` (play button in stop position)
 
 3. Open `index.html` in a web browser
 
@@ -126,4 +125,4 @@ This project is distributed under the MIT License. See `LICENSE` file for more i
 ## Contact
 
 SinCinteria - sinc@interia.pl
-Project Link: https://github.com/sincinteria/SinC-AI-WEB-Radio-Player
+Project Link: [https://github.com/sincinteria/SinC-AI-WEB-Radio-Player](https://github.com/sincinteria/Unitra-WEB-Radio.git)
