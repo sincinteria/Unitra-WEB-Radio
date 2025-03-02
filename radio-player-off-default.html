@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SinC AI Radio Player</title>
+    <style>
+        body {
+			background-image: linear-gradient(to bottom, #A9A9A9, #000000);
+			background-repeat: no-repeat;
+			background-size: cover;
+			height: 100vh; /* Ensures the body takes up the full viewport height */
+			margin: 0; /* Removes default margin */
+			font-family: Arial, sans-serif;	   
+        }
+        
+		.radio-container {
+            text-align: center;
+            padding: 20px;
+        }
+		
+        .radio-buttons {
+            display: none;
+        }
+
+        #clock {
+            position: absolute;
+            top: 147px;
+            left: calc(50% - 440px);
+            background: rgba(240, 240, 240, 0);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 30px;
+            font-weight: bold;
+            color: white;
+            z-index: 1000;
+            min-width: 80px;
+            text-align: center;
+			opacity: 0.4;
+        }
+        
+		.custom-controls {
+			display: flex;
+			align-items: center;
+			gap: 15px;
+		}
+
+		.play-pause-btn {
+			position: absolute;
+			top: 100px;
+			left: 50%;
+			transform: translate(-50%, 0);
+			background: transparent;
+			border: none;
+			cursor: pointer;
+		}
+
+		.play-pause-btn img {
+			width: 1000px;
+			height: 100%;
+		}
+				
+		.station-info {
+			position: absolute;
+			top: 164px;
+			left: calc(50% - 250px);
+			font-size: 16px;
+			color: #fcf7e8;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			opacity: 0.5; 
+			z-index: 100;
+		}
+				
+		.volume-control {
+			position: absolute;
+			top: 320px;
+			left: calc(50% - 20px);
+			z-index: 100;
+		}
+
+		.volume-control input[type="range"] {
+			-webkit-appearance: slider-vertical;
+			width: 0px; /* Szerokość suwaka */
+			height: 50px;
+			transform: rotate(0);
+		}
+
+		.volume-control input[type="range"]::-webkit-slider-thumb {
+			background: lightgray; /* Kolor suwaka */
+			cursor: pointer;
+			accent-color: white;
+			border: none;
+		}
+
+		.volume-control input[type="range"]::-moz-range-thumb {
+			background: lightgray; /* Kolor suwaka */
+			cursor: pointer;
+		}
+
+		.volume-control input[type="range"]::-webkit-slider-runnable-track {
+			background: lightgray; /* Kolor samego suwaka */
+			width: 0px; /* Szerokość samego suwaka */
+		}
+
+		.volume-control input[type="range"]::-moz-range-track {
+			background: lightgray; /* Kolor samego suwaka */
+			width: 0px; /* Szerokość samego suwaka */
+		}
+		
+        .tuner-control {
+		    position: absolute;
+            width: 153px;
+            height: 153px;
+			left: calc(50% + 197px);
+			top: 237px;
+            cursor: pointer;
+			display: flex;
+			z-index: 100;
+        }
+
+        .tuner-dial {
+		    position: absolute;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.1s ease;
+			display: flex;
+			z-index: 100;
+        }
+
+		h2 {
+		color: white;
+		}
+		
+    </style>
+</head>
+<body>
+    <div id="clock"></div>
+
+    <div class="radio-container">
+        <h2>SinC WEB Radio</h2>
+        
+        <div class="tuner-control" id="tuner">
+            <img src="pokretlo.png" alt="Radio Tuner" class="tuner-dial" id="tunerDial">
+        </div>
+        
+        <div class="radio-display" id="nowPlaying">
+            <div class="station-info">
+                Teraz odtwarzane:&nbsp;&nbsp;<strong><span id="currentStation">-</span></strong>
+            </div>
+            
+            <div class="custom-controls">
+                <button class="play-pause-btn" id="playPauseBtn">
+                    <img src="unitraoff.png" alt="Play" id="playPauseImg">
+                </button>
+                <div class="volume-control">
+
+                    <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1">
+                </div>
+            </div>
+            
+            <audio id="audioPlayer"></audio>
+        </div>
+
+        <div class="radio-buttons" id="stations">
+            <button class="radio-button" data-url="https://radiostream.pl/tuba10-1.mp3">Tok FM</button>
+            <button class="radio-button" data-url="https://stream15.polskieradio.pl/pr24/pr24.sdp/playlist.m3u8">PR 24</button>
+            <button class="radio-button" data-url="https://stream14.polskieradio.pl/pr4/pr4.sdp/playlist.m3u8">PR 4</button>
+            <button class="radio-button" data-url="https://stream13.polskieradio.pl/pr3/pr3.sdp/playlist.m3u8">PR 3</button>
+            <button class="radio-button" data-url="https://stream12.polskieradio.pl/pr2/pr2.sdp/playlist.m3u8">PR 2</button>
+            <button class="radio-button" data-url="https://stream11.polskieradio.pl/pr1/pr1.sdp/playlist.m3u8">PR 1</button>
+            <button class="radio-button" data-url="https://radiostream.pl/tuba8-1.mp3">Rock Radio</button>
+            <button class="radio-button" data-url="https://r.dcs.redcdn.pl/sc/o2/Eurozet/live/meloradio.livx?audio=5">MeloRadio</button>
+            <button class="radio-button" data-url="https://an.cdn.eurozet.pl/ant-web.mp3">AntyRadio</button>
+            <button class="radio-button" data-url="https://ic2.smcdn.pl/5380-1.mp3#ESKA_ROCK">Eska Rock</button>
+            <button class="radio-button" data-url="https://ic2.smcdn.pl/2140-1.aac">Eska Poznań</button>
+            <button class="radio-button" data-url="https://go-audio.toya.net.pl/63214">Nowy Świat</button>
+            <button class="radio-button" data-url="https://ch.cdn.eurozet.pl/chi-net.mp3">ChilliZet</button>
+            <button class="radio-button" data-url="https://waw.ic.smcdn.pl/3990-1.mp3">VOX FM</button>
+            <button class="radio-button" data-url="https://ssl-1.radiohost.pl:8018/stream">Italo 4 U</button>
+            <button class="radio-button" data-url="https://rs6-krk2.rmfstream.pl/rmf_fm">RMF FM</button>
+            <button class="radio-button" data-url="https://stream.rcs.revma.com/an1ugyygzk8uv">Radio 357</button>
+            <button class="radio-button" data-url="https://radiostream.pl/tuba8904-1.mp3">Złote przeboje</button>
+            <button class="radio-button" data-url="https://rs9-krk2-cyfronet.rmfstream.pl/RMFMAXXX48">RMF Maxxx</button>
+            <button class="radio-button" data-url="https://zt02.cdn.eurozet.pl/zet-old.mp3?redirected=02">Radio Zet</button>
+        </div>
+    </div>
+
+    <script>
+        // Updated clock functionality - time only
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // Radio player functionality
+        const audioPlayer = document.getElementById('audioPlayer');
+        const nowPlaying = document.getElementById('nowPlaying');
+        const currentStation = document.getElementById('currentStation');
+        const buttons = document.querySelectorAll('.radio-button');
+        const tuner = document.getElementById('tuner');
+        const tunerDial = document.getElementById('tunerDial');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const playPauseImg = document.getElementById('playPauseImg');
+        const volumeSlider = document.getElementById('volumeSlider');
+        
+        let currentPlayingButton = null;
+        let hls = null;
+        let isDragging = false;
+        let startAngle = 0;
+        let currentRotation = 0;
+        let currentStationIndex = -1;
+        let lastMouseAngle = 0;
+        const STEP_ANGLE = 18;
+        let radioIsOn = false;
+
+        // Obsługa przycisku play/pause
+        playPauseBtn.addEventListener('click', function() {
+            if (audioPlayer.paused) {
+                if (currentStationIndex === -1) {
+                    // If no station is selected yet, select the first one
+                    setUpStation(0);
+                }
+                audioPlayer.play();
+                playPauseImg.src = 'unitraon.png'; // Zmiana na ikonę pauzy
+                playPauseImg.alt = 'Pause';
+                radioIsOn = true;
+            } else {
+                audioPlayer.pause();
+                playPauseImg.src = 'unitraoff.png'; // Zmiana na ikonę play
+                playPauseImg.alt = 'Play';
+                radioIsOn = false;
+            }
+        });
+
+        // Obsługa suwaka głośności
+        volumeSlider.addEventListener('input', function() {
+            audioPlayer.volume = this.value;
+        });
+
+        // Obsługa play/pause na podstawie stanu odtwarzacza
+        audioPlayer.addEventListener('play', function() {
+            playPauseImg.src = 'unitraon.png';
+            playPauseImg.alt = 'Pause';
+        });
+
+        audioPlayer.addEventListener('pause', function() {
+            playPauseImg.src = 'unitraoff.png';
+            playPauseImg.alt = 'Play';
+        });
+
+        function getAngle(event, element) {
+            const rect = element.getBoundingClientRect();
+            const center = {
+                x: rect.left + rect.width / 2,
+                y: rect.top + rect.height / 2
+            };
+            const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+            const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+            const angle = Math.atan2(clientY - center.y, clientX - center.x) * 180 / Math.PI;
+            return (angle + 360) % 360;
+        }
+
+        function roundToStep(rotation) {
+            return Math.round(rotation / STEP_ANGLE) * STEP_ANGLE;
+        }
+
+        function setUpStation(index) {
+            if (index < 0 || index >= buttons.length) return;
+            
+            const button = buttons[index];
+            const url = button.dataset.url;
+            const stationName = button.textContent;
+
+            if (currentPlayingButton === button) return;
+
+            if (currentPlayingButton) {
+                currentPlayingButton.classList.remove('playing');
+                if (hls) {
+                    hls.destroy();
+                    hls = null;
+                }
+            }
+
+            // Set up the audio source but don't play automatically
+            if (url.endsWith('.m3u8')) {
+                if (Hls.isSupported()) {
+                    hls = new Hls();
+                    hls.loadSource(url);
+                    hls.attachMedia(audioPlayer);
+                } else if (audioPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                    audioPlayer.src = url;
+                }
+            } else {
+                audioPlayer.src = url;
+            }
+
+            nowPlaying.style.display = 'block';
+            currentStation.textContent = stationName;
+            button.classList.add('playing');
+            currentPlayingButton = button;
+            currentStationIndex = index;
+            
+            // Only play if radio is on
+            if (radioIsOn) {
+                audioPlayer.play();
+            }
+        }
+
+        function playStation(index) {
+            setUpStation(index);
+            
+            // Only play if radio is turned on
+            if (radioIsOn) {
+                audioPlayer.play();
+            }
+        }
+
+        function handleStart(event) {
+            isDragging = true;
+            lastMouseAngle = getAngle(event, tunerDial);
+            startAngle = lastMouseAngle - currentRotation;
+        }
+
+        function handleMove(event) {
+            if (!isDragging) return;
+
+            const currentAngle = getAngle(event, tunerDial);
+            let angleDiff = currentAngle - lastMouseAngle;
+            
+            if (angleDiff > 180) angleDiff -= 360;
+            if (angleDiff < -180) angleDiff += 360;
+            
+            currentRotation = (currentRotation + angleDiff + 360) % 360;
+            lastMouseAngle = currentAngle;
+
+            const steppedRotation = roundToStep(currentRotation);
+            tunerDial.style.transform = `rotate(${steppedRotation}deg)`;
+            
+            const newIndex = Math.floor(steppedRotation / STEP_ANGLE);
+            
+            if (newIndex !== currentStationIndex && newIndex >= 0 && newIndex < buttons.length) {
+                playStation(newIndex);
+            }
+        }
+
+        function handleEnd() {
+            isDragging = false;
+        }
+
+        tuner.addEventListener('mousedown', handleStart);
+        document.addEventListener('mousemove', handleMove);
+        document.addEventListener('mouseup', handleEnd);
+
+        tuner.addEventListener('touchstart', handleStart);
+        document.addEventListener('touchmove', handleMove);
+        document.addEventListener('touchend', handleEnd);
+
+        audioPlayer.addEventListener('error', () => {
+            alert('Błąd odtwarzania stacji. Sprawdź połączenie internetowe lub spróbuj później.');
+            if (currentPlayingButton) {
+                currentPlayingButton.classList.remove('playing');
+                currentPlayingButton = null;
+            }
+            nowPlaying.style.display = 'none';
+        });
+
+        window.addEventListener('load', () => {
+            // Just set up the first station but don't play it
+            setUpStation(0);
+            // Ensure radio is off by default
+            radioIsOn = false;
+            playPauseImg.src = 'unitraoff.png';
+            playPauseImg.alt = 'Play';
+            audioPlayer.pause();
+        });
+    </script>
+</body>
+</html>
