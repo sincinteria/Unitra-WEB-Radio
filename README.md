@@ -34,8 +34,8 @@ git clone https://github.com/yourusername/Unitra-WEB-Radio.git)
 ```
 
 2. Ensure you have the required assets in your project directory:
-   - `tuneron.png` (background image)
-   - `tuneroff.png` (background image)
+   - `unitraon.png` (background image)
+   - `unitraoff.png` (background image)
    - `pokretlo.png` (dial image)
 
 3. Open `index.html` in a web browser
