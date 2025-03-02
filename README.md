@@ -1,6 +1,6 @@
 # SinC Web Radio Player
 
-Demo Link: [https://sincinteria.github.io/SinC-AI-WEB-Radio-Player/](https://sincinteria.github.io/Unitra-WEB-Radio/)
+Demo Link: [https://sincinteria.github.io/Unitra-WEB-Radio/](https://sincinteria.github.io/Unitra-WEB-Radio/)
 
 A simple and elegant web-based radio player with a retro tuner interface. This application allows users to listen to various Polish radio stations through an intuitive tuning dial interface.
 
