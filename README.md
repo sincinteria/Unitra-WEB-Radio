@@ -4,7 +4,7 @@ Demo Link: [https://sincinteria.github.io/SinC-AI-WEB-Radio-Player/](https://sin
 
 A simple and elegant web-based radio player with a retro tuner interface. This application allows users to listen to various Polish radio stations through an intuitive tuning dial interface.
 
-![Radio Player Interface](tuneron.png)
+![Radio Player Interface](unitraon.png)
 
 ## Features
 
