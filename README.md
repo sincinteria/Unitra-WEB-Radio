@@ -30,7 +30,7 @@ The player is built using pure HTML, CSS, and JavaScript, with the following fea
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/Unitra-WEB-Radio.git)
+git clone https://github.com/sincinteria/Unitra-WEB-Radio.git)
 ```
 
 2. Ensure you have the required assets in your project directory:
