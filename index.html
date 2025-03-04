@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -66,14 +67,26 @@
 			top: 164px;
 			left: calc(50% - 250px);
 			font-size: 16px;
-			color: #fcf7e8;
+			color: #000;
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
-			opacity: 0.5; 
+			opacity: 0.1; 
 			z-index: 100;
 		}
-				
+		
+		.station-info.playing {
+			color: orange; /* Kolor pomarańczowy */
+ text-shadow:
+    0 0 7px #fff,
+    0 0 10px orange,
+    0 0 16px #fff;
+			opacity: 0.8;
+
+			z-index: 100;
+		}
+		
+
 		.volume-control {
 			position: absolute;
 			top: 320px;
@@ -147,7 +160,7 @@
         </div>
         
         <div class="radio-display" id="nowPlaying">
-            <div class="station-info">
+            <div class="station-info" id="stationInfo">
                 Teraz odtwarzane:&nbsp;&nbsp;<strong><span id="currentStation">-</span></strong>
             </div>
             
@@ -233,11 +246,16 @@
                 playPauseImg.src = 'unitraon.png'; // Zmiana na ikonę pauzy
                 playPauseImg.alt = 'Pause';
                 radioIsOn = true;
+            // Dodanie klasy zmieniającej kolor
+            stationInfo.classList.add('playing');
+
             } else {
                 audioPlayer.pause();
                 playPauseImg.src = 'unitraoff.png'; // Zmiana na ikonę play
                 playPauseImg.alt = 'Play';
                 radioIsOn = false;
+            // Usunięcie klasy zmieniającej kolor
+            stationInfo.classList.remove('playing');
             }
         });
 
@@ -316,12 +334,49 @@
         }
 
         function playStation(index) {
-            setUpStation(index);
+            if (index < 0 || index >= buttons.length) return;
             
-            // Only play if radio is turned on
-            if (radioIsOn) {
+            const button = buttons[index];
+            const url = button.dataset.url;
+            const stationName = button.textContent;
+            const stationInfo = document.getElementById('stationInfo');
+
+            if (currentPlayingButton === button) return;
+
+            if (currentPlayingButton) {
+                currentPlayingButton.classList.remove('playing');
+                if (hls) {
+                    hls.destroy();
+                    hls = null;
+                }
+                // Usuwanie klasy 'playing' z station-info
+                stationInfo.classList.remove('playing');
+            }
+
+            if (url.endsWith('.m3u8')) {
+                if (Hls.isSupported()) {
+                    hls = new Hls();
+                    hls.loadSource(url);
+                    hls.attachMedia(audioPlayer);
+                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                        audioPlayer.play();
+                    });
+                } else if (audioPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                    audioPlayer.src = url;
+                    audioPlayer.play();
+                }
+            } else {
+                audioPlayer.src = url;
                 audioPlayer.play();
             }
+
+            nowPlaying.style.display = 'block';
+            currentStation.textContent = stationName;
+            button.classList.add('playing');
+            // Dodawanie klasy 'playing' do station-info
+            stationInfo.classList.add('playing');
+            currentPlayingButton = button;
+            currentStationIndex = index;
         }
 
         function handleStart(event) {
@@ -381,6 +436,8 @@
             playPauseImg.src = 'unitraoff.png';
             playPauseImg.alt = 'Play';
             audioPlayer.pause();
+        const stationInfo = document.getElementById('stationInfo');
+        stationInfo.classList.remove('playing');
         });
     </script>
 </body>
